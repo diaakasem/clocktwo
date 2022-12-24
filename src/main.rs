@@ -52,9 +52,13 @@ fn main() {
 
 fn print_time(now: DateTime<Local>) {
     print!("{}{}", termion::clear::All, termion::cursor::Goto(1, 1));
-    let hour = now.hour() as u32;
+    let mut hour = now.hour() as u32;
     let minute = now.minute() as u32;
     let am_pm = if hour < 12 { "AM" } else { "PM" };
+
+    if hour > 12 {
+        hour -= 12;
+    }
 
     let hour_text = number_to_words(hour, false).to_uppercase();
     let minute_text = number_to_words(minute, false).to_uppercase();
@@ -63,7 +67,7 @@ fn print_time(now: DateTime<Local>) {
 
     // a flag to show that we are writing hour_text
     let mut rendering: TimeWords = TimeWords::Others;
-    let grid_size = 18;
+    let grid_size = 12;
     let max_len = hour_text.len().max(minute_text.len());
     let mut random_start_row = thread_rng().gen_range(0..(grid_size as f32 / 3 as f32) as usize);
     let mut random_start = thread_rng().gen_range(0..(grid_size - max_len));
