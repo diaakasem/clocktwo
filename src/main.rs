@@ -67,7 +67,7 @@ fn print_time(now: DateTime<Local>) {
 
     // a flag to show that we are writing hour_text
     let mut rendering: TimeWords = TimeWords::Others;
-    let grid_size = 12;
+    let grid_size = 14;
     let max_len = hour_text.len().max(minute_text.len());
     let mut random_start_row = thread_rng().gen_range(0..(grid_size as f32 / 3 as f32) as usize);
     let mut random_start = thread_rng().gen_range(0..(grid_size - max_len));
