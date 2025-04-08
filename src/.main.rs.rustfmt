@@ -1,45 +1,40 @@
-use chrono::Timelike;
-use chrono::{DateTime, Local};
-use number_to_words::number_to_words;
 use rand::prelude::*;
-use std::thread::sleep;
 use std::time::Duration;
+use std::thread::sleep;
+use chrono::Timelike;
+use chrono::{Local, DateTime};
 use termion::style::{Bold, Reset};
+use number_to_words::number_to_words;
 
-/// Enum representing the different types of time words.
+// enum for the different types of time words
 enum TimeWords {
     Hour,
     Minute,
     AMPM,
-    Others,
+    Others
 }
 
-/// Renders the given character with styling based on the type of time word.
-///
-/// # Arguments
-///
-/// * `text` - The character to render.
-/// * `time_words` - The type of time word to determine the styling.
 fn render_text(text: char, time_words: TimeWords) {
     let white = termion::color::Fg(termion::color::White);
     let red = termion::color::Fg(termion::color::Red);
+    // let green = termion::color::Fg(termion::color::Green);
+    // let blue = termion::color::Fg(termion::color::Blue);
     match time_words {
         TimeWords::Hour => {
             print!("{}{}{}{}", Bold, red, text, Reset);
-        }
+        },
         TimeWords::Minute => {
             print!("{}{}{}{}", Bold, red, text, Reset);
-        }
+        },
         TimeWords::AMPM => {
             print!("{}{}{}{}", Bold, red, text, Reset);
-        }
+        },
         TimeWords::Others => {
             print!("{}{}{}", white, text, Reset);
         }
     }
 }
 
-/// Main function that continuously updates and displays the current time.
 fn main() {
     let cycle_time = 1;
     let mut first = true;
@@ -55,11 +50,6 @@ fn main() {
     }
 }
 
-/// Prints the current time in a grid format with styled text.
-///
-/// # Arguments
-///
-/// * `now` - The current date and time.
 fn print_time(now: DateTime<Local>) {
     print!("{}{}", termion::clear::All, termion::cursor::Goto(1, 1));
     let mut hour = now.hour() as u32;
@@ -75,6 +65,7 @@ fn print_time(now: DateTime<Local>) {
 
     let alphabets = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+    // a flag to show that we are writing hour_text
     let mut rendering: TimeWords = TimeWords::Others;
     let grid_size = 14;
     let max_len = hour_text.len().max(minute_text.len());
@@ -83,6 +74,7 @@ fn print_time(now: DateTime<Local>) {
     let mut is_done: [u8; 3] = [0; 3];
     for i in 0..grid_size {
         for j in 0..grid_size {
+
             if is_done[0] > 0 && is_done[0] < hour_text.len() as u8 {
                 rendering = TimeWords::Hour;
             } else if is_done[1] > 0 && is_done[1] < minute_text.len() as u8 {
@@ -99,6 +91,7 @@ fn print_time(now: DateTime<Local>) {
                 }
             }
 
+            // if we are writing hour_text
             match rendering {
                 TimeWords::Hour => {
                     if is_done[0] < hour_text.len() as u8 {
@@ -107,13 +100,10 @@ fn print_time(now: DateTime<Local>) {
                         is_done[0] += 1;
                     } else {
                         random_start = thread_rng().gen_range(0..(grid_size - max_len));
-                        random_start_row = thread_rng().gen_range(
-                            (random_start_row + 1)
-                                ..(grid_size - (grid_size as f32 / 3 as f32) as usize) - 1,
-                        );
+                        random_start_row = thread_rng().gen_range((random_start_row + 1)..(grid_size - (grid_size as f32 / 3 as f32) as usize) - 1);
                         rendering = TimeWords::Others;
                     }
-                }
+                },
                 TimeWords::Minute => {
                     if is_done[1] < minute_text.len() as u8 {
                         let letter = minute_text.chars().nth(is_done[1] as usize).unwrap();
@@ -121,11 +111,10 @@ fn print_time(now: DateTime<Local>) {
                         is_done[1] += 1;
                     } else {
                         random_start = thread_rng().gen_range(0..(grid_size - max_len));
-                        random_start_row =
-                            thread_rng().gen_range((random_start_row + 1)..grid_size);
+                        random_start_row = thread_rng().gen_range((random_start_row+1)..grid_size);
                         rendering = TimeWords::Others;
                     }
-                }
+                },
                 TimeWords::AMPM => {
                     if is_done[2] < 2 {
                         let letter = am_pm.chars().nth(is_done[2] as usize).unwrap();
@@ -134,17 +123,14 @@ fn print_time(now: DateTime<Local>) {
                     } else {
                         rendering = TimeWords::Others;
                     }
-                }
+                },
                 _ => {}
             }
             match rendering {
                 TimeWords::Others => {
-                    let letter = alphabets
-                        .chars()
-                        .nth(thread_rng().gen_range(0..alphabets.len()))
-                        .unwrap();
+                    let letter = alphabets.chars().nth(thread_rng().gen_range(0..alphabets.len())).unwrap();
                     render_text(letter, TimeWords::Others);
-                }
+                },
                 _ => {}
             }
             print!(" ");
@@ -152,4 +138,3 @@ fn print_time(now: DateTime<Local>) {
         println!("");
     }
 }
-
